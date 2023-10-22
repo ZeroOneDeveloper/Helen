@@ -1,9 +1,10 @@
 'use client'
 
-import { Box, Text, HStack, IconButton, Tooltip } from '@chakra-ui/react'
 import Link from 'next/link'
 import * as React from 'react'
+
 import { TbLogin } from 'react-icons/tb'
+import { Box, Text, HStack, IconButton, Tooltip } from '@chakra-ui/react'
 
 export const HomeHeader: React.FC = () => {
 	const rootRef = React.useRef<HTMLDivElement>(null)

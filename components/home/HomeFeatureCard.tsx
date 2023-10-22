@@ -1,5 +1,6 @@
-import { Box, Card, Heading } from '@chakra-ui/react'
 import * as React from 'react'
+
+import { Box, Card, Heading } from '@chakra-ui/react'
 
 export const HomeFeatureCard: React.FC<React.PropsWithChildren<{ title: React.ReactNode; icon: React.ReactNode }>> = ({ title, icon, children }) => {
 	return (

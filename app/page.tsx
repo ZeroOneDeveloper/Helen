@@ -1,12 +1,13 @@
+import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-import { Box, Text, Card, Button, Heading, Grid, GridItem } from '@chakra-ui/react'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { HomeHeader } from '@/components/home/HomeHeader'
-import { HomeFeatureCard } from '@/components/home/HomeFeatureCard'
 import { TbStar, TbMicrophone, TbPlus, TbShare } from 'react-icons/tb'
-import Link from 'next/link'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Box, Text, Card, Button, Heading, Grid, GridItem } from '@chakra-ui/react'
+
+import { HomeHeader } from '@components/home/HomeHeader'
+import { HomeFeatureCard } from '@components/home/HomeFeatureCard'
 
 export const dynamic = 'force-dynamic'
 
