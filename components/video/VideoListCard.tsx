@@ -14,7 +14,7 @@ export const VideoListCard: React.FC<{ video: Video }> = ({ video }) => {
 					boxShadow: 'xl',
 				}}
 			>
-				<Box backgroundImage={`url(https://i.ytimg.com/vi/${video.id}/original.jpg)`} backgroundPosition="center" w="full" backgroundSize="cover" aspectRatio={16 / 9} />
+				<Box backgroundImage={`url(https://i.ytimg.com/vi/${video.id}/hqdefault.jpg)`} backgroundPosition="center" w="full" backgroundSize="cover" aspectRatio={16 / 9} />
 			</Card>
 			<Box mt={2}>
 				<Text

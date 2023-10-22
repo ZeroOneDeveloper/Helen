@@ -6,7 +6,6 @@ export const VideoCardSkeleton: React.FC = () => {
 		<Box w="full">
 			<Card w="full" overflow="hidden">
 				<Skeleton w="full" aspectRatio={16 / 9} />
-				{/* backgroundImage={`url(https://i.ytimg.com/vi/${video.id}/original.jpg)`} */}
 			</Card>
 			<Box mt={2}>
 				<Skeleton height="6" />
