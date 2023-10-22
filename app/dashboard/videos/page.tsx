@@ -1,13 +1,15 @@
 'use client'
 
-import { VideoCardSkeleton } from '@/components/video/VideoCardSkeleton'
-import { VideoListCard } from '@/components/video/VideoListCard'
-import { Video } from '@/types/data'
-import { supabaseClient } from '@/utils/supabaseClient'
-import { Box, Container, Spinner, styled } from '@chakra-ui/react'
-import { PostgrestError } from '@supabase/supabase-js'
 import * as React from 'react'
+
 import { VirtuosoGrid } from 'react-virtuoso'
+import { PostgrestError } from '@supabase/supabase-js'
+import { Box, Container, Spinner, styled } from '@chakra-ui/react'
+
+import { Video } from '@/types/data'
+import { supabaseClient } from '@utils/supabaseClient'
+import { VideoListCard } from '@components/video/VideoListCard'
+import { VideoCardSkeleton } from '@components/video/VideoCardSkeleton'
 
 const ListContainer = React.forwardRef<HTMLDivElement, React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>>>(({ children, ...props }, ref) => (
 	<Box display="grid" flexWrap="wrap" gridTemplateColumns="repeat(3, 1fr)" gap={4} ref={ref} {...props}>

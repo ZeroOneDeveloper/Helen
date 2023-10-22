@@ -6,6 +6,8 @@ import { Box } from '@chakra-ui/react'
 import { Header } from '@components/layout/Header'
 import { supabaseServer } from '@utils/supabaseServer'
 
+export const dynamic = 'force-dynamic'
+
 const DashboardLayout: React.FC<React.PropsWithChildren> = async ({ children }) => {
 	const supabase = supabaseServer()
 
@@ -16,7 +18,7 @@ const DashboardLayout: React.FC<React.PropsWithChildren> = async ({ children }) 
 	}
 
 	return (
-		<Box>
+		<Box bg="gray.50" minH="100vh">
 			<Header />
 			<Box px={4} py={4}>
 				{children}
