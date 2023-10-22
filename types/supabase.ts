@@ -14,7 +14,7 @@ export interface Database {
           author_id: string | null
           chunks: Json[]
           created_at: string
-          id: number
+          id: string | null
           updated_at: string | null
           video_id: string | null
           visibility: Database["public"]["Enums"]["visibility"]
@@ -23,7 +23,7 @@ export interface Database {
           author_id?: string | null
           chunks?: Json[]
           created_at?: string
-          id?: number
+          id?: string | null
           updated_at?: string | null
           video_id?: string | null
           visibility?: Database["public"]["Enums"]["visibility"]
@@ -32,7 +32,7 @@ export interface Database {
           author_id?: string | null
           chunks?: Json[]
           created_at?: string
-          id?: number
+          id?: string | null
           updated_at?: string | null
           video_id?: string | null
           visibility?: Database["public"]["Enums"]["visibility"]
