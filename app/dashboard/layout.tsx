@@ -18,7 +18,9 @@ const DashboardLayout: React.FC<React.PropsWithChildren> = async ({ children }) 
 	return (
 		<Box>
 			<Header />
-			<Box>{children}</Box>
+			<Box px={4} py={4}>
+				{children}
+			</Box>
 		</Box>
 	)
 }
