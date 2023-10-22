@@ -9,22 +9,28 @@ import { Box, Button, Card, Flex, Heading, Skeleton, Text, useToast } from '@cha
 
 import { Recording, Video } from '@/types/data'
 import { supabaseClient } from '@utils/supabaseClient'
+import { useRouter } from 'next/navigation'
 
 export const VideoPageContent: React.FC<{ video: Video; recordings: Recording[] }> = ({ video, recordings }) => {
 	const createdAt = React.useMemo(() => dayjs(video.created_at).format('YYYY-MM-DD'), [video.created_at])
+	const playerRef = React.useRef<YouTubePlayer>(null)
 	const [videoLoading, setVideoLoading] = React.useState(true)
 	const [creating, setCreating] = React.useState(false)
 	const supabase = supabaseClient()
 
-	const toast = useToast()
+	const toast = useToast({ position: 'top-right' })
+	const router = useRouter()
 
 	const createRecording = async () => {
 		setCreating(true)
 
 		try {
 			const { data, error } = await supabase.from('recordings').insert({ video_id: video.id }).select('id').single()
-			if (error) throw error
-			// console.log(response)
+			if (error) return toast({ title: error.message, status: 'error' })
+
+			await router.push('/dashboard/projects/' + data.id)
+
+			toast({ title: '프로젝트가 생성 되었습니다.', status: 'success' })
 		} finally {
 			setCreating(false)
 		}
@@ -35,7 +41,7 @@ export const VideoPageContent: React.FC<{ video: Video; recordings: Recording[] 
 	return (
 		<Box w="full">
 			<Flex gap={4} direction={{ base: 'column', lg: 'row' }}>
-				<Box flexGrow={1} flexShrink={0}>
+				<Box flexGrow={1}>
 					<Card
 						overflow="hidden"
 						className="player"
@@ -53,7 +59,15 @@ export const VideoPageContent: React.FC<{ video: Video; recordings: Recording[] 
 						}}
 					>
 						{videoLoading && <Skeleton h="full" />}
-						<YouTubePlayer onReady={() => setVideoLoading(false)} videoId={video.id} loading="lazy" />
+						<YouTubePlayer
+							ref={playerRef}
+							onReady={() => {
+								setVideoLoading(false)
+								console.log(playerRef.current?.internalPlayer)
+							}}
+							videoId={video.id}
+							loading="lazy"
+						/>
 					</Card>
 					<Box mt={4}>
 						<Heading size="lg">{video.title}</Heading>
@@ -61,7 +75,7 @@ export const VideoPageContent: React.FC<{ video: Video; recordings: Recording[] 
 					</Box>
 				</Box>
 				<Box>
-					<Card minW="xs">
+					<Card w="full" maxW={{ lg: 'xs' }}>
 						{recordings.length == 0 ? (
 							<Box p={4}>
 								공개된 더빙 프로젝트가 없습니다.

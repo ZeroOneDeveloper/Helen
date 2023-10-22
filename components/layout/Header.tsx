@@ -5,6 +5,7 @@ import { Box, HStack, Text } from '@chakra-ui/react'
 
 import { supabaseServer } from '@utils/supabaseServer'
 import { HeaderProfileArea } from './HeaderProfileArea'
+import { Profile } from '@/types/data'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,6 +15,14 @@ export const Header: React.FC = async () => {
 	const {
 		data: { user },
 	} = await supabase.auth.getUser()
+
+	let profile: Profile | null = null
+
+	if (user) {
+		const res = await supabase.from('profiles').select('*').eq('id', user.id).single()
+
+		profile = res.data
+	}
 
 	return (
 		<HStack borderBottomWidth={1} px={4} py={2} alignItems="center" bg="white">
@@ -29,7 +38,7 @@ export const Header: React.FC = async () => {
 				</Text>
 			</Box>
 			<Box flexGrow={1} />
-			{user && <HeaderProfileArea user={user} />}
+			{profile && <HeaderProfileArea profile={profile} />}
 		</HStack>
 	)
 }

@@ -9,35 +9,72 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       recordings: {
         Row: {
-          author_id: string | null
+          author: string | null
           chunks: Json[]
           created_at: string
-          id: string | null
+          id: string
           updated_at: string | null
           video_id: string | null
           visibility: Database["public"]["Enums"]["visibility"]
         }
         Insert: {
-          author_id?: string | null
+          author?: string | null
           chunks?: Json[]
           created_at?: string
-          id?: string | null
+          id?: string
           updated_at?: string | null
           video_id?: string | null
           visibility?: Database["public"]["Enums"]["visibility"]
         }
         Update: {
-          author_id?: string | null
+          author?: string | null
           chunks?: Json[]
           created_at?: string
-          id?: string | null
+          id?: string
           updated_at?: string | null
           video_id?: string | null
           visibility?: Database["public"]["Enums"]["visibility"]
         }
         Relationships: [
+          {
+            foreignKeyName: "recordings_author_fkey"
+            columns: ["author"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "recordings_video_id_fkey"
             columns: ["video_id"]
