@@ -54,7 +54,7 @@ export const VideoPageContent: React.FC<{ video: Video; recordings: Recording[] 
 		setCreating(true)
 
 		try {
-			const { data, error } = await supabase.from('recordings').insert({ video_id: video.id }).select('id').single()
+			const { data, error } = await supabase.from('recordings').insert({ video: video.id }).select('id').single()
 			if (error) return toast({ title: error.message, status: 'error' })
 
 			await router.push('/dashboard/projects/' + data.id)

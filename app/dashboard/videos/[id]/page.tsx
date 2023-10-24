@@ -17,7 +17,7 @@ const VideoPage: React.FC<{ params: { id: string } }> = async ({ params: { id } 
 		return notFound()
 	}
 
-	const { data: recordings, error } = await supabase.from('recordings').select('*, author(*)').eq('video_id', video.id)
+	const { data: recordings, error } = await supabase.from('recordings').select('*, author(*)').eq('video', video.id)
 
 	if (error) throw error
 
