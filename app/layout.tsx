@@ -5,6 +5,8 @@ import { Providers } from './providers'
 import { supabaseServer } from '@/utils/supabaseServer'
 import { Profile } from '@/types/data'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
 	title: 'Helen',
 	description: 'Your hand can change the world.',
