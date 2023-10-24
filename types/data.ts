@@ -7,3 +7,7 @@ export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Recording = Omit<Database['public']['Tables']['recordings']['Row'], 'author'> & {
 	author: Profile
 }
+
+export type RecordingWithVideo = Omit<Recording, 'video'> & {
+	video: Video
+}
