@@ -47,7 +47,7 @@ export interface Database {
           created_at: string
           id: string
           updated_at: string | null
-          video_id: string | null
+          video: string
           visibility: Database["public"]["Enums"]["visibility"]
         }
         Insert: {
@@ -56,7 +56,7 @@ export interface Database {
           created_at?: string
           id?: string
           updated_at?: string | null
-          video_id?: string | null
+          video: string
           visibility?: Database["public"]["Enums"]["visibility"]
         }
         Update: {
@@ -65,7 +65,7 @@ export interface Database {
           created_at?: string
           id?: string
           updated_at?: string | null
-          video_id?: string | null
+          video?: string
           visibility?: Database["public"]["Enums"]["visibility"]
         }
         Relationships: [
@@ -76,8 +76,8 @@ export interface Database {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "recordings_video_id_fkey"
-            columns: ["video_id"]
+            foreignKeyName: "recordings_video_fkey"
+            columns: ["video"]
             referencedRelation: "videos"
             referencedColumns: ["id"]
           }
