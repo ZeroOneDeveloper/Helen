@@ -85,16 +85,19 @@ export interface Database {
       }
       videos: {
         Row: {
+          caption: Json[] | null
           created_at: string
           id: string
           title: string
         }
         Insert: {
+          caption?: Json[] | null
           created_at?: string
           id: string
           title: string
         }
         Update: {
+          caption?: Json[] | null
           created_at?: string
           id?: string
           title?: string
