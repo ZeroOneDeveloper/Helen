@@ -31,13 +31,22 @@ import {
 	AlertIcon,
 	AlertDescription,
 	Spacer,
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalCloseButton,
+	ModalBody,
+	ModalFooter,
+	UseDisclosureReturn,
 } from '@chakra-ui/react'
+import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import { TbWorld, TbLock, TbTrash, TbPlayerPlay } from 'react-icons/tb'
+import { TbWorld, TbLock, TbTrash, TbPlayerPlay, TbMicrophone, TbPlayerStop, TbPlayerRecord, TbPlayerRecordFilled } from 'react-icons/tb'
 import YouTube, { YouTubePlayer } from 'react-youtube'
 
-const Caption: React.FC<{ caption: Caption; active: boolean }> = ({ caption, active }) => {
+const Caption: React.FC<{ caption: Caption; active: boolean; navigate?: () => void; onRecord?: () => void }> = ({ caption, active, navigate, onRecord }) => {
 	const time = React.useMemo(() => {
 		const start = Math.round(caption.start)
 
@@ -55,16 +64,151 @@ const Caption: React.FC<{ caption: Caption; active: boolean }> = ({ caption, act
 				<Text display="block" minW={16}>
 					{time}
 				</Text>
-				<Text>{caption.text}</Text>
+				<Tooltip label="클릭해 이동">
+					<Text cursor="pointer" onClick={navigate}>
+						{caption.text}
+					</Text>
+				</Tooltip>
 				<Spacer />
+				<Tooltip label="녹음하기">
+					<IconButton onClick={onRecord} icon={<TbMicrophone />} aria-label="녹음하기 " />
+				</Tooltip>
 				<Tooltip label="재생">
-					<IconButton icon={<TbPlayerPlay />} colorScheme="blue" aria-label="재생" />
+					<IconButton onClick={(e) => {}} icon={<TbPlayerPlay />} colorScheme="blue" aria-label="재생" />
 				</Tooltip>
 				<Tooltip label="오디오 파일 삭제">
-					<IconButton icon={<TbTrash />} colorScheme="red" aria-label="재생" />
+					<IconButton onClick={(e) => {}} icon={<TbTrash />} colorScheme="red" aria-label="재생" />
 				</Tooltip>
 			</HStack>
 		</Card>
+	)
+}
+
+const RecordPopup: React.FC<{ disclosure: UseDisclosureReturn }> = ({ disclosure: { onClose } }) => {
+	const mediaStream = React.useRef<MediaStream | null>(null)
+	const mediaRecorder = React.useRef<MediaRecorder | null>(null)
+	const timerLoop = React.useRef<number | null>(null)
+	const [loading, setLoading] = React.useState(false)
+	const [recording, setRecording] = React.useState(false)
+	const [elapsed, setElapsed] = React.useState(0)
+	const toast = useToast({ position: 'top-right' })
+
+	React.useEffect(() => {
+		return () => {
+			mediaRecorder.current?.stop()
+			if (timerLoop.current) clearInterval(timerLoop.current)
+			if (mediaStream.current) {
+				mediaStream.current.getTracks().forEach((x) => x.stop())
+				toast({ title: '녹음이 취소되었습니다.', status: 'warning' })
+			}
+		}
+	}, [])
+
+	const startRecording = async () => {
+		if (mediaStream.current) {
+			toast({ title: '이미 녹음이 진행중입니다.', status: 'error' })
+			return
+		}
+
+		setLoading(true)
+
+		try {
+			const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+
+			mediaStream.current = stream
+
+			setRecording(true)
+
+			const recorder = new MediaRecorder(stream)
+
+			mediaRecorder.current = recorder
+
+			if (timerLoop.current) clearInterval(timerLoop.current)
+			setElapsed(0)
+			timerLoop.current = setInterval(() => setElapsed((v) => v + 1), 1000) as unknown as number
+
+			recorder.start()
+		} catch (e) {
+			console.error(e)
+			toast({ title: '스트림 시작 중 오류가 발생했습니다.', status: 'error' })
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	const elapsedTimeStr = React.useMemo(() => {
+		const pad = (value: string) => '0'.repeat(Math.max(2 - value.length, 0)) + value
+
+		const mins = Math.floor(elapsed / 60)
+		const secs = elapsed % 60
+
+		return `${pad(mins.toString())}:${pad(secs.toString())}`
+	}, [elapsed])
+
+	return (
+		<ModalContent>
+			<ModalHeader>녹음하기</ModalHeader>
+			<ModalCloseButton />
+			<ModalBody>
+				{recording ? (
+					<Card p={4}>
+						<HStack>
+							<Text ml={2} color="red.500">
+								<TbPlayerRecordFilled />
+							</Text>
+							<Text ml={4}>녹음 진행중: {elapsedTimeStr}</Text>
+							<Spacer />
+
+							<IconButton
+								isLoading={loading}
+								onClick={async () => {
+									const recorder = mediaRecorder.current
+
+									if (recorder) {
+										setLoading(true)
+										try {
+											const promise = new Promise<Blob>((resolve) => {
+												recorder.ondataavailable = (e) => {
+													resolve(e.data)
+												}
+											})
+
+											recorder.stop()
+
+											const data = await promise
+
+											const url = URL.createObjectURL(data)
+
+											window.open(url)
+
+											mediaStream.current?.getTracks().forEach((x) => x.stop())
+
+											mediaRecorder.current = null
+											mediaStream.current = null
+											setRecording(false)
+										} finally {
+											setLoading(false)
+										}
+									} else setLoading(false)
+								}}
+								aria-label="종료"
+								colorScheme="red"
+								icon={<TbPlayerStop />}
+							/>
+						</HStack>
+					</Card>
+				) : (
+					<IconButton colorScheme="red" onClick={startRecording} isLoading={loading} icon={<TbPlayerRecordFilled />} aria-label="녹음 시작" />
+				)}
+			</ModalBody>
+
+			<ModalFooter>
+				<HStack>
+					<Button onClick={onClose}>닫기</Button>
+					<Button>추가(TODO)</Button>
+				</HStack>
+			</ModalFooter>
+		</ModalContent>
 	)
 }
 
@@ -75,8 +219,10 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 	const [updating, setUpdating] = React.useState(false)
 	const [player, setPlayer] = React.useState<YouTubePlayer>(null)
 	const [activeIndex, setActiveIndex] = React.useState(-1)
+	const [time, setTime] = React.useState(0)
 
-	const { onOpen, onClose, isOpen } = useDisclosure()
+	const visibilityPopup = useDisclosure()
+	const recordPopup = useDisclosure()
 
 	const toast = useToast({ position: 'top-right' })
 	const supabase = supabaseClient()
@@ -84,8 +230,44 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 
 	React.useEffect(() => setVisibility(project.visibility), [project.visibility])
 
+	React.useEffect(() => {
+		const handler = (e: MessageEvent<any>) => {
+			const rawData = e.data
+			if (typeof rawData !== 'string') return
+			let data
+			try {
+				data = JSON.parse(rawData)
+			} catch {
+				data = null
+			}
+			if (!data) return
+
+			if (data.channel !== 'widget') return
+
+			if (data.event === 'infoDelivery') {
+				const currentTime = data.info.currentTime
+				setTime(currentTime)
+			}
+		}
+		window.addEventListener('message', handler)
+
+		return () => {
+			window.removeEventListener('message', handler)
+		}
+	}, [])
+
+	React.useEffect(() => {
+		const adjustedTime = time + 0.4
+		const index = project.video.caption?.findLastIndex((x: any) => x.start <= adjustedTime) ?? -1
+		if (activeIndex !== index) setActiveIndex(index)
+	}, [activeIndex, time])
+
 	return (
 		<Container mx="auto" maxW="container.xl">
+			<Modal closeOnOverlayClick={false} isOpen={recordPopup.isOpen} onClose={recordPopup.onClose}>
+				<ModalOverlay />
+				<RecordPopup disclosure={recordPopup} />
+			</Modal>
 			<Flex direction={{ base: 'column-reverse', lg: 'row' }} gap={4}>
 				<Box flexGrow={1}>
 					{!project.video.caption?.length && (
@@ -97,7 +279,17 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 							</Box>
 						</Alert>
 					)}
-					{project.video.caption?.map((x: any, i) => <Caption active={i === activeIndex} caption={x} key={i} />)}
+					{project.video.caption?.map((x: any, i) => (
+						<Caption
+							navigate={() => {
+								player.seekTo(x.start)
+							}}
+							onRecord={() => recordPopup.onOpen()}
+							active={i === activeIndex}
+							caption={x}
+							key={i}
+						/>
+					))}
 				</Box>
 				<Box maxW={{ lg: 'xs' }} flexShrink={1}>
 					<Box position="sticky" top={4}>
@@ -129,10 +321,10 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 							<Popover
 								onOpen={() => {
 									setVisibility(project.visibility)
-									onOpen()
+									visibilityPopup.onOpen()
 								}}
-								onClose={onClose}
-								isOpen={isOpen}
+								onClose={visibilityPopup.onClose}
+								isOpen={visibilityPopup.isOpen}
 								placement="bottom-end"
 							>
 								<PopoverTrigger>
@@ -174,7 +366,7 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 												try {
 													await supabase.from('recordings').update({ visibility }).eq('id', project.id)
 													await router.refresh()
-													onClose()
+													visibilityPopup.onClose()
 													toast({ status: 'success', title: '공개 범위가 설정 되었습니다.' })
 												} catch (e) {
 													toast({ status: 'error', title: '오류가 발생했어요', description: `${e}` })
