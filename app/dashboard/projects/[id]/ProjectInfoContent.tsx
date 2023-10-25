@@ -26,7 +26,7 @@ export const ProjectInfoContent: React.FC<{ project: RecordingWithVideo }> = ({ 
 								<IconButton as={Link} href={`/dashboard/projects/${project.id}/editor`} colorScheme="blue" aria-label="수정" icon={<TbPencil />} />
 							</Tooltip>
 							<Tooltip label="삭제">
-								<IconButton colorScheme="red" aria-label="수정" icon={<TbTrash />} />
+								<IconButton onClick={() => alert('TODO')} colorScheme="red" aria-label="수정" icon={<TbTrash />} />
 							</Tooltip>
 						</HStack>
 					)}

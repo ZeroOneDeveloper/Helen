@@ -1,8 +1,6 @@
-import { NextResponse } from 'next/server'
-import { redirect } from 'next/navigation'
 import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 
-import { AuthApiError } from '@supabase/supabase-js'
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 
 export async function middleware(req: NextRequest) {

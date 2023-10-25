@@ -11,3 +11,9 @@ export type Recording = Omit<Database['public']['Tables']['recordings']['Row'], 
 export type RecordingWithVideo = Omit<Recording, 'video'> & {
 	video: Video
 }
+
+export type Caption = {
+	text: string
+	start: number
+	duration: number
+}
