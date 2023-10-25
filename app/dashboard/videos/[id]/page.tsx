@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation'
 
-import { Box, Container } from '@chakra-ui/react'
+import { Container } from '@chakra-ui/react'
 
-import { VideoPageContent } from './content'
+import { Recording } from '@/types/data'
 import { supabaseServer } from '@utils/supabaseServer'
-import { Recording, Video } from '@/types/data'
+import { VideoPageContent } from './content'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 const VideoPage: React.FC<{ params: { id: string } }> = async ({ params: { id } }) => {
 	const supabase = supabaseServer()

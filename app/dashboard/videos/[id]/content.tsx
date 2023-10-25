@@ -49,12 +49,13 @@ export const VideoPageContent: React.FC<{ video: Video; recordings: Recording[] 
 
 	const toast = useToast({ position: 'top-right' })
 	const router = useRouter()
+	const user = useCurrentUser()!
 
 	const createRecording = async () => {
 		setCreating(true)
 
 		try {
-			const { data, error } = await supabase.from('recordings').insert({ video: video.id }).select('id').single()
+			const { data, error } = await supabase.from('recordings').insert({ video: video.id, author: user.id }).select('id').single()
 			if (error) return toast({ title: error.message, status: 'error' })
 
 			await router.push('/dashboard/projects/' + data.id)
