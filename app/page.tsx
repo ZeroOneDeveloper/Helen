@@ -72,7 +72,7 @@ export default async function Index() {
 						</GridItem>
 						<GridItem>
 							<HomeFeatureCard icon={<TbAlarmFilled />} title="더빙 시간 예측">
-								더빙 시간을 예측해 더빙을 더욱 효율적으로 진행하세요.
+								더빙을 더욱 효율적으로 진행하세요.
 							</HomeFeatureCard>
 						</GridItem>
 					</Grid>
