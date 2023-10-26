@@ -3,6 +3,7 @@
 import { Caption, RecordingWithVideo } from '@/types/data'
 import { useCurrentUser } from '@/utils/context'
 import { supabaseClient } from '@/utils/supabaseClient'
+import { handleResponse } from '@/utils/supabaseCommon'
 import {
 	Alert,
 	AlertDescription,
@@ -28,6 +29,7 @@ import {
 	PopoverBody,
 	PopoverCloseButton,
 	PopoverContent,
+	PopoverFooter,
 	PopoverHeader,
 	PopoverTrigger,
 	Radio,
@@ -65,6 +67,12 @@ const Caption: React.FC<{
 		return `${pad(mins.toString())}:${pad(secs.toString())}`
 	}, [caption.start])
 	const recording = project.chunks[index]
+	const deleteDialog = useDisclosure()
+	const supabase = supabaseClient()
+	const router = useRouter()
+	const toast = useToast({ position: 'top-right' })
+
+	const [loading, setLoading] = React.useState(false)
 
 	return (
 		<Card p={2} mb={4} bg={active ? 'blue.100' : undefined}>
@@ -86,9 +94,56 @@ const Caption: React.FC<{
 						<Tooltip label="재생">
 							<IconButton onClick={(e) => {}} icon={<TbPlayerPlay />} colorScheme="blue" aria-label="재생" />
 						</Tooltip>
-						<Tooltip label="오디오 파일 삭제">
-							<IconButton onClick={(e) => {}} icon={<TbTrash />} colorScheme="red" aria-label="재생" />
-						</Tooltip>
+						<Popover {...deleteDialog}>
+							<PopoverTrigger>
+								<Box display="inline-block">
+									<Tooltip label="오디오 파일 삭제">
+										<IconButton onClick={() => deleteDialog.onOpen()} icon={<TbTrash />} colorScheme="red" aria-label="재생" />
+									</Tooltip>
+								</Box>
+							</PopoverTrigger>
+							<PopoverContent>
+								<PopoverArrow />
+								<PopoverCloseButton />
+								<PopoverHeader>오디오 파일 삭제</PopoverHeader>
+								<PopoverBody>삭제한 파일은 복구할 수 없습니다. 계속할까요?</PopoverBody>
+								<PopoverFooter>
+									<HStack>
+										<Spacer />
+										<Button size="sm" onClick={deleteDialog.onClose}>
+											취소
+										</Button>
+										<Button
+											size="sm"
+											isLoading={loading}
+											colorScheme="red"
+											onClick={() => {
+												setLoading(true)
+												toast.promise(
+													(async () => {
+														const path = project.chunks[index] as string
+														const chunks = [...project.chunks]
+														chunks[index] = null
+														console.log(handleResponse(await supabase.storage.from('recordings').list()))
+														handleResponse(await supabase.storage.from('recordings').remove([path]))
+														await supabase.from('recordings').update({ chunks }).eq('id', project.id)
+														await router.refresh()
+														deleteDialog.onClose()
+													})().finally(() => setLoading(false)),
+													{
+														loading: { title: '오디오 파일 삭제 진행 중...' },
+														error: { title: '오디오 파일 삭제 중 문제가 발생했습니다.' },
+														success: { title: '오디오 파일이 삭제되었습니다.' },
+													},
+												)
+											}}
+										>
+											삭제
+										</Button>
+									</HStack>
+								</PopoverFooter>
+							</PopoverContent>
+						</Popover>
 					</>
 				)}
 			</HStack>
@@ -254,8 +309,12 @@ const RecordPopup: React.FC<{
 
 								const existing = project.chunks[index]
 
+								console.log(existing)
+
 								if (existing) {
-									await supabase.storage.from('recordings').remove((existing as any).path)
+									const result = await supabase.storage.from('recordings').remove([existing as string])
+									if (result.error) throw new Error(result.error.message)
+									console.log(result.data)
 								}
 
 								const { error, data } = await supabase.storage.from('recordings').upload(`${user.id}/${project.id}/${fileId}.webm`, blob)
