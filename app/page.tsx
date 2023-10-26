@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-import { TbStar, TbMicrophone, TbPlus, TbShare } from 'react-icons/tb'
+import {TbStar, TbMicrophone, TbPlus, TbShare, TbDeviceFloppy, TbAlarmFilled} from 'react-icons/tb'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Box, Text, Card, Button, Heading, Grid, GridItem } from '@chakra-ui/react'
 
@@ -63,6 +63,16 @@ export default async function Index() {
 						<GridItem>
 							<HomeFeatureCard icon={<TbShare />} title="손쉽게 공유">
 								당신이 더빙한 영상을 링크 하나로 공유하세요.
+							</HomeFeatureCard>
+						</GridItem>
+						<GridItem>
+							<HomeFeatureCard icon={<TbDeviceFloppy />} title="자동 저장">
+								언제든지 더빙을 다시 시작할 수 있습니다.
+							</HomeFeatureCard>
+						</GridItem>
+						<GridItem>
+							<HomeFeatureCard icon={<TbAlarmFilled />} title="더빙 시간 예측">
+								더빙 시간을 예측해 더빙을 더욱 효율적으로 진행하세요.
 							</HomeFeatureCard>
 						</GridItem>
 					</Grid>
