@@ -92,6 +92,7 @@ const RecordPopup: React.FC<{ disclosure: UseDisclosureReturn }> = ({ disclosure
 	const [recording, setRecording] = React.useState(false)
 	const [elapsed, setElapsed] = React.useState(0)
 	const [url, setUrl] = React.useState<string | null>(null)
+	const [blob, setBlob] = React.useState<Blob | null>(null)
 	const toast = useToast({ position: 'top-right' })
 
 	React.useEffect(() => {
@@ -112,6 +113,8 @@ const RecordPopup: React.FC<{ disclosure: UseDisclosureReturn }> = ({ disclosure
 		}
 
 		setLoading(true)
+		setUrl(null)
+		setBlob(null)
 
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -185,6 +188,7 @@ const RecordPopup: React.FC<{ disclosure: UseDisclosureReturn }> = ({ disclosure
 											const newUrl = URL.createObjectURL(data)
 
 											setUrl(newUrl)
+											setBlob(data)
 
 											mediaStream.current?.getTracks().forEach((x) => x.stop())
 
