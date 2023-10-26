@@ -91,6 +91,7 @@ const RecordPopup: React.FC<{ disclosure: UseDisclosureReturn }> = ({ disclosure
 	const [loading, setLoading] = React.useState(false)
 	const [recording, setRecording] = React.useState(false)
 	const [elapsed, setElapsed] = React.useState(0)
+	const [url, setUrl] = React.useState<string | null>(null)
 	const toast = useToast({ position: 'top-right' })
 
 	React.useEffect(() => {
@@ -177,9 +178,13 @@ const RecordPopup: React.FC<{ disclosure: UseDisclosureReturn }> = ({ disclosure
 
 											const data = await promise
 
-											const url = URL.createObjectURL(data)
+											if (url) {
+												URL.revokeObjectURL(url)
+											}
 
-											window.open(url)
+											const newUrl = URL.createObjectURL(data)
+
+											setUrl(newUrl)
 
 											mediaStream.current?.getTracks().forEach((x) => x.stop())
 
@@ -199,6 +204,12 @@ const RecordPopup: React.FC<{ disclosure: UseDisclosureReturn }> = ({ disclosure
 					</Card>
 				) : (
 					<IconButton colorScheme="red" onClick={startRecording} isLoading={loading} icon={<TbPlayerRecordFilled />} aria-label="녹음 시작" />
+				)}
+
+				{url && (
+					<Box mt={4}>
+						<audio controls src={url.toString()} style={{ width: '100%' }} />
+					</Box>
 				)}
 			</ModalBody>
 
