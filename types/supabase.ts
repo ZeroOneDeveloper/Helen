@@ -42,7 +42,7 @@ export interface Database {
       }
       recordings: {
         Row: {
-          author: string | null
+          author: string
           chunks: Json[]
           created_at: string
           id: string
@@ -51,7 +51,7 @@ export interface Database {
           visibility: Database["public"]["Enums"]["visibility"]
         }
         Insert: {
-          author?: string | null
+          author?: string
           chunks?: Json[]
           created_at?: string
           id?: string
@@ -60,7 +60,7 @@ export interface Database {
           visibility?: Database["public"]["Enums"]["visibility"]
         }
         Update: {
-          author?: string | null
+          author?: string
           chunks?: Json[]
           created_at?: string
           id?: string

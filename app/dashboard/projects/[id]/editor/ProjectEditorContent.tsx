@@ -4,49 +4,56 @@ import { Caption, RecordingWithVideo } from '@/types/data'
 import { useCurrentUser } from '@/utils/context'
 import { supabaseClient } from '@/utils/supabaseClient'
 import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	AlertTitle,
+	Box,
+	Button,
+	Card,
 	Container,
 	Flex,
-	Box,
-	Card,
-	Heading,
 	HStack,
-	Popover,
-	PopoverTrigger,
-	Tooltip,
+	Heading,
 	IconButton,
-	PopoverContent,
-	PopoverArrow,
-	PopoverCloseButton,
-	PopoverHeader,
-	PopoverBody,
-	RadioGroup,
-	Stack,
-	Radio,
-	Button,
-	Text,
-	useToast,
-	useDisclosure,
-	Alert,
-	AlertTitle,
-	AlertIcon,
-	AlertDescription,
-	Spacer,
 	Modal,
-	ModalOverlay,
-	ModalContent,
-	ModalHeader,
-	ModalCloseButton,
 	ModalBody,
+	ModalCloseButton,
+	ModalContent,
 	ModalFooter,
+	ModalHeader,
+	ModalOverlay,
+	Popover,
+	PopoverArrow,
+	PopoverBody,
+	PopoverCloseButton,
+	PopoverContent,
+	PopoverHeader,
+	PopoverTrigger,
+	Radio,
+	RadioGroup,
+	Spacer,
+	Stack,
+	Text,
+	Tooltip,
 	UseDisclosureReturn,
+	useDisclosure,
+	useToast,
 } from '@chakra-ui/react'
-import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import { TbWorld, TbLock, TbTrash, TbPlayerPlay, TbMicrophone, TbPlayerStop, TbPlayerRecord, TbPlayerRecordFilled } from 'react-icons/tb'
+import { TbLock, TbMicrophone, TbPlayerPlay, TbPlayerRecordFilled, TbPlayerStop, TbTrash, TbWorld } from 'react-icons/tb'
 import YouTube, { YouTubePlayer } from 'react-youtube'
+import { v4 } from 'uuid'
 
-const Caption: React.FC<{ caption: Caption; active: boolean; navigate?: () => void; onRecord?: () => void }> = ({ caption, active, navigate, onRecord }) => {
+const Caption: React.FC<{
+	caption: Caption
+	project: RecordingWithVideo
+	active: boolean
+	navigate?: () => void
+	onRecord?: () => void
+	index: number
+}> = ({ caption, active, navigate, onRecord, project, index }) => {
 	const time = React.useMemo(() => {
 		const start = Math.round(caption.start)
 
@@ -57,6 +64,7 @@ const Caption: React.FC<{ caption: Caption; active: boolean; navigate?: () => vo
 
 		return `${pad(mins.toString())}:${pad(secs.toString())}`
 	}, [caption.start])
+	const recording = project.chunks[index]
 
 	return (
 		<Card p={2} mb={4} bg={active ? 'blue.100' : undefined}>
@@ -73,18 +81,26 @@ const Caption: React.FC<{ caption: Caption; active: boolean; navigate?: () => vo
 				<Tooltip label="녹음하기">
 					<IconButton onClick={onRecord} icon={<TbMicrophone />} aria-label="녹음하기 " />
 				</Tooltip>
-				<Tooltip label="재생">
-					<IconButton onClick={(e) => {}} icon={<TbPlayerPlay />} colorScheme="blue" aria-label="재생" />
-				</Tooltip>
-				<Tooltip label="오디오 파일 삭제">
-					<IconButton onClick={(e) => {}} icon={<TbTrash />} colorScheme="red" aria-label="재생" />
-				</Tooltip>
+				{recording && (
+					<>
+						<Tooltip label="재생">
+							<IconButton onClick={(e) => {}} icon={<TbPlayerPlay />} colorScheme="blue" aria-label="재생" />
+						</Tooltip>
+						<Tooltip label="오디오 파일 삭제">
+							<IconButton onClick={(e) => {}} icon={<TbTrash />} colorScheme="red" aria-label="재생" />
+						</Tooltip>
+					</>
+				)}
 			</HStack>
 		</Card>
 	)
 }
 
-const RecordPopup: React.FC<{ disclosure: UseDisclosureReturn }> = ({ disclosure: { onClose } }) => {
+const RecordPopup: React.FC<{
+	disclosure: UseDisclosureReturn
+	project: RecordingWithVideo
+	index: number
+}> = ({ disclosure: { onClose }, project, index }) => {
 	const mediaStream = React.useRef<MediaStream | null>(null)
 	const mediaRecorder = React.useRef<MediaRecorder | null>(null)
 	const timerLoop = React.useRef<number | null>(null)
@@ -94,6 +110,9 @@ const RecordPopup: React.FC<{ disclosure: UseDisclosureReturn }> = ({ disclosure
 	const [url, setUrl] = React.useState<string | null>(null)
 	const [blob, setBlob] = React.useState<Blob | null>(null)
 	const toast = useToast({ position: 'top-right' })
+	const router = useRouter()
+	const supabase = supabaseClient()
+	const user = useCurrentUser()!
 
 	React.useEffect(() => {
 		return () => {
@@ -219,8 +238,43 @@ const RecordPopup: React.FC<{ disclosure: UseDisclosureReturn }> = ({ disclosure
 
 			<ModalFooter>
 				<HStack>
-					<Button onClick={onClose}>닫기</Button>
-					<Button>추가(TODO)</Button>
+					<Button onClick={onClose} isDisabled={loading}>
+						닫기
+					</Button>
+					<Button
+						colorScheme="blue"
+						isLoading={loading}
+						isDisabled={!blob}
+						onClick={async () => {
+							setLoading(true)
+							try {
+								if (!blob) throw new Error('blob not found')
+
+								const fileId = v4()
+
+								const existing = project.chunks[index]
+
+								if (existing) {
+									await supabase.storage.from('recordings').remove((existing as any).path)
+								}
+
+								const { error, data } = await supabase.storage.from('recordings').upload(`${user.id}/${project.id}/${fileId}.webm`, blob)
+								if (error) throw new Error(error.message)
+								const chunks = [...project.chunks]
+								chunks[index] = data.path
+								await supabase.from('recordings').update({ chunks }).eq('id', project.id)
+								await router.refresh()
+								onClose()
+								toast({ status: 'success', title: '파일이 저장되었습니다.' })
+							} catch (e) {
+								toast({ status: 'error', title: '파일을 저장하지 못했습니다', description: `${e}` })
+							} finally {
+								setLoading(false)
+							}
+						}}
+					>
+						업로드
+					</Button>
 				</HStack>
 			</ModalFooter>
 		</ModalContent>
@@ -235,6 +289,7 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 	const [player, setPlayer] = React.useState<YouTubePlayer>(null)
 	const [activeIndex, setActiveIndex] = React.useState(-1)
 	const [time, setTime] = React.useState(0)
+	const [recordingIndex, setRecordingIndex] = React.useState(-1)
 
 	const visibilityPopup = useDisclosure()
 	const recordPopup = useDisclosure()
@@ -279,9 +334,9 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 
 	return (
 		<Container mx="auto" maxW="container.xl">
-			<Modal closeOnOverlayClick={false} isOpen={recordPopup.isOpen} onClose={recordPopup.onClose}>
+			<Modal closeOnOverlayClick={false} closeOnEsc={false} isOpen={recordPopup.isOpen} onClose={recordPopup.onClose}>
 				<ModalOverlay />
-				<RecordPopup disclosure={recordPopup} />
+				<RecordPopup disclosure={recordPopup} project={project} index={recordingIndex} />
 			</Modal>
 			<Flex direction={{ base: 'column-reverse', lg: 'row' }} gap={4}>
 				<Box flexGrow={1}>
@@ -296,10 +351,15 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 					)}
 					{project.video.caption?.map((x: any, i) => (
 						<Caption
+							project={project}
+							index={i}
 							navigate={() => {
 								player.seekTo(x.start)
 							}}
-							onRecord={() => recordPopup.onOpen()}
+							onRecord={() => {
+								setRecordingIndex(i)
+								recordPopup.onOpen()
+							}}
 							active={i === activeIndex}
 							caption={x}
 							key={i}
