@@ -272,7 +272,7 @@ const RecordPopup: React.FC<{
 			<ModalHeader>녹음하기</ModalHeader>
 			<ModalCloseButton />
 			<ModalBody>
-				<Text fontWeight={'bold'} mb={4}>
+				<Text fontWeight={'bold'} fontSize={'xl'} mb={4}>
 					{(project.video.caption![index] as Caption).text}
 				</Text>
 				{recording ? (
