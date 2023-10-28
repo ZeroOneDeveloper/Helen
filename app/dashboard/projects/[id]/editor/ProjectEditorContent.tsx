@@ -396,6 +396,7 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 	const [files, setFiles] = React.useState<AudioFileStore>([])
 	const filesRef = React.useRef<AudioFileStore>(files)
 	const playingRef = React.useRef<boolean>(false)
+	const captionsRef = React.useRef<HTMLDivElement>(null)
 
 	const visibilityPopup = useDisclosure()
 	const recordPopup = useDisclosure()
@@ -540,6 +541,7 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 		if (!captions) return
 		const index = captions.findLastIndex((x: any) => x.start <= adjustedTime) ?? -1
 		if (activeIndex !== index) {
+			captionsRef.current?.children[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 			setActiveIndex(index)
 		}
 	}, [activeIndex, time])
@@ -551,7 +553,7 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 				<RecordPopup disclosure={recordPopup} project={project} index={recordingIndex} />
 			</Modal>
 			<Flex direction={{ base: 'column-reverse', lg: 'row' }} gap={4}>
-				<Box flexGrow={1}>
+				<Box flexGrow={1} ref={captionsRef}>
 					{!project.video.caption?.length && (
 						<Alert status="error" p={4} alignItems="flex-start">
 							<AlertIcon />
