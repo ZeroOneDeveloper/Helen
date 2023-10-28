@@ -3,5 +3,5 @@ export const handleResponse = <T>(data: { data: T; error: null } | { data: null;
 		throw data.error
 	}
 
-	return data.data
+	return data.data!
 }
