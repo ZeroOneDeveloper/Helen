@@ -239,7 +239,7 @@ const RecordPopup: React.FC<{
 
 			mediaStream.current = stream
 
-			const recorder = new MediaRecorder(stream)
+			const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
 
 			mediaRecorder.current = recorder
 
