@@ -434,8 +434,19 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 
 					const audio = new Audio(objectURL)
 
-					await new Promise<void>((resolve) => {
+					await new Promise<void>((resolve, reject) => {
 						audio.addEventListener('canplaythrough', () => resolve(), false)
+						audio.addEventListener(
+							'error',
+							() => {
+								reject(
+									new Error(
+										`${Object.fromEntries(Object.entries(MediaError).map((x) => [x[1], x[0]]))[audio.error?.code ?? -1] ?? 'Unknown'}: ${audio.error?.message || 'No Message'}`,
+									),
+								)
+							},
+							false,
+						)
 					})
 
 					audioFiles[i] = { audio, objectURL, playing: false }
@@ -461,8 +472,12 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 				success: {
 					title: '오디오 파일 다운로드가 완료 되었습니다.',
 				},
-				error: {
-					title: '오디오 파일 다운로드 중 문제가 발생했습니다',
+				error: (err) => {
+					console.error(err)
+					return {
+						title: '오디오 파일 다운로드 중 문제가 발생했습니다',
+						description: `${err?.message}`,
+					}
 				},
 				loading: {
 					title: '오디오 파일을 다운로드 중입니다...',
