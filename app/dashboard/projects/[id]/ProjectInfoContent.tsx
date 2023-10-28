@@ -266,6 +266,7 @@ export const ProjectInfoContent: React.FC<{ project: RecordingWithVideo }> = ({ 
 			<Flex direction={{ base: 'column', lg: 'row' }} gap={4}>
 				<Box flexGrow={1} flexShrink={1}>
 					<Heading size="md">{project.video.title}</Heading>
+					<Text>by {project.author.full_name}</Text>
 				</Box>
 				<Box minW="xs" flexShrink={0}>
 					{project.author.id === user.id && (
