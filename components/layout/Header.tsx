@@ -28,7 +28,7 @@ export const Header: React.FC = async () => {
 		<HStack borderBottomWidth={1} px={4} py={2} alignItems="center" bg="white">
 			<Box display={'flex'} alignItems={'center'} gap={6}>
 				<Text as={Link} href="/dashboard" cursor="pointer" fontFamily="Blacksword" fontSize="2xl">
-					Helen
+					ODS
 				</Text>
 				<Text as={Link} href="/dashboard" fontWeight={'bold'}>
 					Home

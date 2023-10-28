@@ -25,7 +25,7 @@ export default async function Index() {
 			<HomeHeader />
 			<Box mt={32} width={'full'} mx={'auto'} textAlign={'center'}>
 				<Text fontFamily={'Blacksword'} fontSize={'7xl'}>
-					Helen
+					ODS
 				</Text>
 				<Text fontWeight={'bold'} fontSize={'6xl'} px={8}>
 					<Text fontWeight={'black'} as="span" color="blue.500">

@@ -40,7 +40,7 @@ export const HomeHeader: React.FC = () => {
 					window.scrollTo({ top: 0, behavior: 'smooth' })
 				}}
 			>
-				Helen
+				ODS
 			</Text>
 			<Box flexGrow={1} />
 			<Tooltip label="로그인">

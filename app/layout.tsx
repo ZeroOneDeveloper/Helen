@@ -8,7 +8,7 @@ import { Profile } from '@/types/data'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-	title: 'Helen',
+	title: 'ODS',
 	description: 'Your hand can change the world.',
 }
 
