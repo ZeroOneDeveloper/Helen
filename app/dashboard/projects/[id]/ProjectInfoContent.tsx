@@ -308,7 +308,7 @@ export const ProjectInfoContent: React.FC<{ project: RecordingWithVideo }> = ({ 
 						/>
 					))}
 				</Box>
-				<Box maxW={{ lg: 'xl' }} flexShrink={1} minW="xs">
+				<Box maxW={{ lg: 'xl' }} flexShrink={1} minW="xl">
 					<Box position="sticky" top={4}>
 						<Card
 							aspectRatio="16 / 9"
