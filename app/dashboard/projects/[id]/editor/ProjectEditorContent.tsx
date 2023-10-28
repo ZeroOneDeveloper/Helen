@@ -382,7 +382,7 @@ const RecordPopup: React.FC<{
 	)
 }
 
-type AudioFileStore = ({ objectURL: string; audio: HTMLAudioElement; playing: boolean } | undefined)[]
+export type AudioFileStore = ({ objectURL: string; audio: HTMLAudioElement; playing: boolean } | undefined)[]
 
 export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = ({ project }) => {
 	const user = useCurrentUser()!
@@ -551,7 +551,7 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 				<RecordPopup disclosure={recordPopup} project={project} index={recordingIndex} />
 			</Modal>
 			<Flex direction={{ base: 'column-reverse', lg: 'row' }} gap={4}>
-				<Box flexGrow={1} id={'captions'}>
+				<Box flexGrow={1}>
 					{!project.video.caption?.length && (
 						<Alert status="error" p={4} alignItems="flex-start">
 							<AlertIcon />
