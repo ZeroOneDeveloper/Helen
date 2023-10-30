@@ -19,7 +19,7 @@ import {
 	useDisclosure,
 	useToast,
 } from '@chakra-ui/react'
-import { RecordingWithVideo } from '@types/data'
+import { RecordingWithVideo } from '@/types/data'
 import { deleteProject } from '@utils/deleteProject'
 import { TbTrash } from 'react-icons/tb'
 import { supabaseClient } from '@utils/supabaseClient'

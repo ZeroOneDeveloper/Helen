@@ -1,4 +1,4 @@
-import { RecordingWithVideo } from '@types/data'
+import { RecordingWithVideo } from '@/types/data'
 import { SupabaseClient } from '@supabase/supabase-js'
 
 export const deleteProject = async (supabase: SupabaseClient, project: RecordingWithVideo) => {
