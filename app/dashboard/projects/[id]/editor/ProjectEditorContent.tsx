@@ -41,6 +41,7 @@ import {
 	UseDisclosureReturn,
 	useDisclosure,
 	useToast,
+	Spinner,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
@@ -48,6 +49,9 @@ import { TbLock, TbMicrophone, TbPlayerPause, TbPlayerPlay, TbPlayerRecordFilled
 import YouTube, { YouTubePlayer } from 'react-youtube'
 import { v4 } from 'uuid'
 import { ProjectDeletePopup } from '@components/ProjectDeletePopup'
+import dynamic from 'next/dynamic'
+
+const AudioEditor = dynamic(() => import('@/components/audio/AudioEditor').then((x) => x.AudioEditor), { ssr: false, loading: () => <Spinner /> })
 
 const Caption: React.FC<{
 	caption: Caption
@@ -335,7 +339,9 @@ const RecordPopup: React.FC<{
 
 				{url && (
 					<Box mt={4}>
-						<audio controls src={url.toString()} style={{ width: '100%' }} />
+						<AudioEditor src={url} />
+
+						{/*<audio controls src={url.toString()} style={{ width: '100%' }} />*/}
 					</Box>
 				)}
 			</ModalBody>
