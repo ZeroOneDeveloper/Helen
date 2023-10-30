@@ -47,6 +47,7 @@ import React from 'react'
 import { TbLock, TbMicrophone, TbPlayerPause, TbPlayerPlay, TbPlayerRecordFilled, TbPlayerStop, TbTrash, TbWorld } from 'react-icons/tb'
 import YouTube, { YouTubePlayer } from 'react-youtube'
 import { v4 } from 'uuid'
+import { ProjectDeletePopup } from '@components/ProjectDeletePopup'
 
 const Caption: React.FC<{
 	caption: Caption
@@ -688,9 +689,7 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 									</PopoverBody>
 								</PopoverContent>
 							</Popover>
-							<Tooltip label="삭제">
-								<IconButton onClick={() => alert('TODO')} colorScheme="red" aria-label="삭제" icon={<TbTrash />} />
-							</Tooltip>
+							<ProjectDeletePopup project={project} />
 						</HStack>
 					</Box>
 				</Box>

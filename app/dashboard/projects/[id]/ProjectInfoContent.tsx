@@ -28,6 +28,8 @@ import * as React from 'react'
 import { TbPencil, TbPlayerPause, TbPlayerPlay, TbTrash } from 'react-icons/tb'
 import YouTube, { YouTubePlayer } from 'react-youtube'
 import { AudioFileStore } from './editor/ProjectEditorContent'
+import { deleteProject } from '@/utils/deleteProject'
+import { ProjectDeletePopup } from '@components/ProjectDeletePopup'
 
 const Caption: React.FC<{
 	caption: Caption
@@ -275,9 +277,7 @@ export const ProjectInfoContent: React.FC<{ project: RecordingWithVideo }> = ({ 
 							<Tooltip label="수정">
 								<IconButton as={Link} href={`/dashboard/projects/${project.id}/editor`} colorScheme="blue" aria-label="수정" icon={<TbPencil />} />
 							</Tooltip>
-							<Tooltip label="삭제">
-								<IconButton onClick={() => alert('TODO')} colorScheme="red" aria-label="수정" icon={<TbTrash />} />
-							</Tooltip>
+							<ProjectDeletePopup project={project} />
 						</HStack>
 					)}
 				</Box>
