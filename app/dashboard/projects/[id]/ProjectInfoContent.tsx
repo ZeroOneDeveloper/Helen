@@ -4,33 +4,13 @@ import type { Caption } from '@/types/data'
 import { RecordingWithVideo } from '@/types/data'
 import { useCurrentUser } from '@/utils/context'
 import { supabaseClient } from '@/utils/supabaseClient'
-import {
-	Alert,
-	AlertDescription,
-	AlertIcon,
-	AlertTitle,
-	Box,
-	Card,
-	Container,
-	Flex,
-	HStack,
-	Heading,
-	IconButton,
-	Spacer,
-	Text,
-	Tooltip,
-	useDisclosure,
-	useToast,
-} from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Card, Container, Flex, HStack, Heading, IconButton, Spacer, Text, Tooltip, useToast } from '@chakra-ui/react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { TbPencil, TbPlayerPause, TbPlayerPlay, TbTrash } from 'react-icons/tb'
 import YouTube, { YouTubePlayer } from 'react-youtube'
 import { AudioFileStore } from './editor/ProjectEditorContent'
-import { deleteProject } from '@/utils/deleteProject'
 import { ProjectDeletePopup } from '@components/ProjectDeletePopup'
-import { clearTimeout } from 'timers'
 
 const Caption: React.FC<{
 	caption: Caption

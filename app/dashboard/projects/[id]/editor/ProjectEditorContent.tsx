@@ -1,3 +1,5 @@
+// noinspection ExceptionCaughtLocallyJS
+
 'use client'
 
 import { Caption, RecordingWithVideo } from '@/types/data'
@@ -50,6 +52,7 @@ import YouTube, { YouTubePlayer } from 'react-youtube'
 import { v4 } from 'uuid'
 import { ProjectDeletePopup } from '@components/ProjectDeletePopup'
 import dynamic from 'next/dynamic'
+import Crunker from 'crunker'
 
 const AudioEditor = dynamic(() => import('@/components/audio/AudioEditor').then((x) => x.AudioEditor), { ssr: false, loading: () => <Spinner /> })
 
@@ -362,6 +365,13 @@ const RecordPopup: React.FC<{
 							try {
 								if (!blob) throw new Error('blob not found')
 
+								const crunker = new Crunker()
+								const range = rangeRef.current
+
+								const [buffer] = await crunker.fetchAudio(blob)
+								const sliced = crunker.sliceAudio(buffer, range.start, range.end)
+								const { blob: outBlob } = crunker.export(sliced, 'audio/webm')
+
 								const fileId = v4()
 
 								const existing = project.chunks[index]
@@ -371,7 +381,7 @@ const RecordPopup: React.FC<{
 									if (result.error) throw new Error(result.error.message)
 								}
 
-								const { path } = handleResponse(await supabase.storage.from('recordings').upload(`${user.id}/${project.id}/${fileId}.webm`, blob))
+								const { path } = handleResponse(await supabase.storage.from('recordings').upload(`${user.id}/${project.id}/${fileId}.webm`, outBlob))
 
 								const chunks = [...project.chunks]
 								chunks[index] = { path, duration: duration.current }
@@ -394,7 +404,7 @@ const RecordPopup: React.FC<{
 	)
 }
 
-export type AudioFileStore = ({ objectURL: string; audio: HTMLAudioElement; playing: boolean } | undefined)[]
+export type AudioFileStore = ({ objectURL: string; audio: HTMLAudioElement; playing: boolean; played: boolean } | undefined)[]
 
 export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = ({ project }) => {
 	const user = useCurrentUser()!
@@ -459,7 +469,7 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 							)
 						})
 
-						audioFiles[i] = { audio, objectURL, playing: false }
+						audioFiles[i] = { audio, objectURL, playing: false, played: false }
 					}
 
 					const toRemove: number[] = []
@@ -537,9 +547,14 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 						const seekTime = currentTime - caption.start
 
 						if (caption.start <= currentTime && end >= currentTime) {
-							audio.currentTime = seekTime
-							audio.play()
+							if (!file.played) {
+								audio.currentTime = seekTime
+								audio.play()
+								file.played = true
+							}
 						} else {
+							file.played = false
+							file.playing = false
 							audio.pause()
 						}
 					}
@@ -553,6 +568,7 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 				for (const file of filesRef.current) {
 					if (!file) continue
 					if (!playing) file.audio.pause()
+					file.played = false
 				}
 				playingRef.current = playing
 				return

@@ -13,6 +13,7 @@
 		"@emotion/styled": "^11.11.0",
 		"@supabase/auth-helpers-nextjs": "latest",
 		"@supabase/supabase-js": "latest",
+		"crunker": "^2.2.0",
 		"framer-motion": "^10.16.4",
 		"next": "latest",
 		"react": "18.2.0",

@@ -116,6 +116,7 @@ export const AudioEditor: React.FC<{ src: string; valueRef: React.MutableRefObje
 								start: ws.getCurrentTime(),
 								end: reg.end,
 							})
+							valueRef.current = { start: reg.start, end: reg.end }
 						}}
 					>
 						<TbArrowBarRight />
@@ -132,6 +133,7 @@ export const AudioEditor: React.FC<{ src: string; valueRef: React.MutableRefObje
 								start: reg.start,
 								end: ws.getCurrentTime(),
 							})
+							valueRef.current = { start: reg.start, end: reg.end }
 						}}
 					>
 						<TbArrowBarLeft />
