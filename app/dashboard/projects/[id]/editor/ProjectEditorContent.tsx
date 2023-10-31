@@ -517,7 +517,7 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 							<Box>
 								<Tooltip label="저장">
 									<IconButton colorScheme="blue" aria-label="저장" icon={<TbCheck />} onClick={() => {
-										router.push(`/dashboard/projects/${project.id}`)
+										router.replace(`/dashboard/projects/${project.id}`)
 									}} />
 								</Tooltip>
 							</Box>
