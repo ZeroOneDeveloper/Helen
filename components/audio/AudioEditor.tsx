@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { MutableRefObject } from 'react'
 import WaveSurfer from 'wavesurfer.js'
 import RegionsPlugin, { Region } from 'wavesurfer.js/dist/plugins/regions'
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline'
 import { Box, Card, HStack, IconButton, Tooltip } from '@chakra-ui/react'
-import { TbArrowBarLeft, TbArrowBarRight, TbArrowBarToLeft, TbArrowBarToRight, TbPlayerPause, TbPlayerPlay } from 'react-icons/tb'
+import { TbArrowBarLeft, TbArrowBarRight, TbPlayerPause, TbPlayerPlay } from 'react-icons/tb'
 
 const reducer = (prevState: any, action: any) => {
 	switch (action.type) {
@@ -23,7 +23,7 @@ const reducer = (prevState: any, action: any) => {
 	return prevState
 }
 
-export const AudioEditor: React.FC<{ src: string }> = ({ src }) => {
+export const AudioEditor: React.FC<{ src: string; valueRef: React.MutableRefObject<{ start: number; end: number }> }> = ({ src, valueRef }) => {
 	const [container, setContainer] = React.useState<HTMLDivElement | null>(null)
 	const [state, dispatch] = React.useReducer(reducer, () => ({ playing: false }))
 	const wsRef = React.useRef<WaveSurfer | null>(null)
@@ -43,17 +43,25 @@ export const AudioEditor: React.FC<{ src: string }> = ({ src }) => {
 			})
 
 			wavesurfer.on('decode', () => {
-				regionRef.current = regions.addRegion({
+				const reg = (regionRef.current = regions.addRegion({
 					start: 0,
 					end: wavesurfer.getDuration(),
 					color: 'rgba(0, 0, 255, 0.2)',
 					resize: true,
 					drag: true,
-				})
+				}))
+				valueRef.current = { start: reg.start, end: reg.end }
 			})
 
 			regions.on('region-out', () => {
+				if (!wsRef.current!.isPlaying()) return
+				const reg = regionRef.current!
 				wavesurfer.stop()
+				wavesurfer.setTime(reg.start)
+			})
+
+			regions.on('region-updated', (reg) => {
+				valueRef.current = { start: reg.start, end: reg.end }
 			})
 
 			wavesurfer.on('play', () => dispatch({ type: 'play' }))
@@ -78,7 +86,21 @@ export const AudioEditor: React.FC<{ src: string }> = ({ src }) => {
 					</Tooltip>
 				) : (
 					<Tooltip label="재생">
-						<IconButton aria-label="재생" onClick={() => regionRef.current?.play()}>
+						<IconButton
+							aria-label="재생"
+							onClick={() => {
+								const reg = regionRef.current!
+								const ws = wsRef.current!
+								const time = ws.getCurrentTime()
+
+								if (time >= reg.start && time <= reg.end) {
+									ws.play()
+									return
+								}
+
+								reg.play()
+							}}
+						>
 							<TbPlayerPlay />
 						</IconButton>
 					</Tooltip>

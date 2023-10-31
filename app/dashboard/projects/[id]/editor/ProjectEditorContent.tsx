@@ -218,6 +218,8 @@ const RecordPopup: React.FC<{
 	const supabase = supabaseClient()
 	const user = useCurrentUser()!
 
+	const rangeRef = React.useRef<{ start: number; end: number }>({ start: 0, end: 0 })
+
 	React.useEffect(() => {
 		return () => {
 			mediaRecorder.current?.stop()
@@ -339,7 +341,7 @@ const RecordPopup: React.FC<{
 
 				{url && (
 					<Box mt={4}>
-						<AudioEditor src={url} />
+						<AudioEditor src={url} valueRef={rangeRef} />
 
 						{/*<audio controls src={url.toString()} style={{ width: '100%' }} />*/}
 					</Box>
@@ -420,80 +422,83 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 	React.useEffect(() => {
 		const ac = new AbortController()
 
-		toast.promise(
-			(async () => {
-				if (ac.signal.aborted) return
-				const audioFiles = [...files]
-
-				for (let i = 0; i < project.chunks.length; i++) {
-					const chunk = project.chunks[i] as { path: string; duration: number }
-					if (!chunk) continue
-					if (audioFiles[i]) continue
-
-					const {
-						data: { publicUrl },
-					} = supabase.storage.from('recordings').getPublicUrl(chunk.path)
-
-					const blob = await (await fetch(publicUrl)).blob()
+		const timeout = setTimeout(() => {
+			toast.promise(
+				(async () => {
 					if (ac.signal.aborted) return
+					const audioFiles = [...files]
 
-					const objectURL = URL.createObjectURL(blob)
+					for (let i = 0; i < project.chunks.length; i++) {
+						const chunk = project.chunks[i] as { path: string; duration: number }
+						if (!chunk) continue
+						if (audioFiles[i]) continue
 
-					const audio = new Audio(objectURL)
+						const {
+							data: { publicUrl },
+						} = supabase.storage.from('recordings').getPublicUrl(chunk.path)
 
-					await new Promise<void>((resolve, reject) => {
-						audio.addEventListener('canplaythrough', () => resolve(), false)
-						audio.addEventListener(
-							'error',
-							() => {
-								reject(
-									new Error(
-										`${Object.fromEntries(Object.entries(MediaError).map((x) => [x[1], x[0]]))[audio.error?.code ?? -1] ?? 'Unknown'}: ${audio.error?.message || 'No Message'}`,
-									),
-								)
-							},
-							false,
-						)
+						const blob = await (await fetch(publicUrl)).blob()
+						if (ac.signal.aborted) return
+
+						const objectURL = URL.createObjectURL(blob)
+
+						const audio = new Audio(objectURL)
+
+						await new Promise<void>((resolve, reject) => {
+							audio.addEventListener('canplaythrough', () => resolve(), false)
+							audio.addEventListener(
+								'error',
+								() => {
+									reject(
+										new Error(
+											`${Object.fromEntries(Object.entries(MediaError).map((x) => [x[1], x[0]]))[audio.error?.code ?? -1] ?? 'Unknown'}: ${audio.error?.message || 'No Message'}`,
+										),
+									)
+								},
+								false,
+							)
+						})
+
+						audioFiles[i] = { audio, objectURL, playing: false }
+					}
+
+					const toRemove: number[] = []
+					audioFiles.forEach((_x, i) => {
+						if (!project.chunks[i]) {
+							toRemove.push(i)
+						}
 					})
-
-					audioFiles[i] = { audio, objectURL, playing: false }
-				}
-
-				const toRemove: number[] = []
-				audioFiles.forEach((_x, i) => {
-					if (!project.chunks[i]) {
-						toRemove.push(i)
-					}
-				})
-				toRemove.forEach((x) => {
-					const f = audioFiles[x]
-					if (f) {
-						URL.revokeObjectURL(f.objectURL)
-					}
-					audioFiles[x] = undefined
-				})
-				setFiles(audioFiles)
-				filesRef.current = audioFiles
-			})(),
-			{
-				success: {
-					title: '오디오 파일 다운로드가 완료 되었습니다.',
+					toRemove.forEach((x) => {
+						const f = audioFiles[x]
+						if (f) {
+							URL.revokeObjectURL(f.objectURL)
+						}
+						audioFiles[x] = undefined
+					})
+					setFiles(audioFiles)
+					filesRef.current = audioFiles
+				})(),
+				{
+					success: {
+						title: '오디오 파일 다운로드가 완료 되었습니다.',
+					},
+					error: (err) => {
+						console.error(err)
+						return {
+							title: '오디오 파일 다운로드 중 문제가 발생했습니다',
+							description: `${err?.message}`,
+						}
+					},
+					loading: {
+						title: '오디오 파일을 다운로드 중입니다...',
+					},
 				},
-				error: (err) => {
-					console.error(err)
-					return {
-						title: '오디오 파일 다운로드 중 문제가 발생했습니다',
-						description: `${err?.message}`,
-					}
-				},
-				loading: {
-					title: '오디오 파일을 다운로드 중입니다...',
-				},
-			},
-		)
+			)
+		}, 100)
 
 		return () => {
 			ac.abort()
+			clearTimeout(timeout)
 		}
 	}, [project.chunks])
 

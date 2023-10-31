@@ -30,6 +30,7 @@ import YouTube, { YouTubePlayer } from 'react-youtube'
 import { AudioFileStore } from './editor/ProjectEditorContent'
 import { deleteProject } from '@/utils/deleteProject'
 import { ProjectDeletePopup } from '@components/ProjectDeletePopup'
+import { clearTimeout } from 'timers'
 
 const Caption: React.FC<{
 	caption: Caption
@@ -201,64 +202,67 @@ export const ProjectInfoContent: React.FC<{ project: RecordingWithVideo }> = ({ 
 	React.useEffect(() => {
 		const ac = new AbortController()
 
-		toast.promise(
-			(async () => {
-				if (ac.signal.aborted) return
-				const audioFiles = [...files]
-
-				for (let i = 0; i < project.chunks.length; i++) {
-					const chunk = project.chunks[i] as { path: string; duration: number }
-					if (!chunk) continue
-					if (audioFiles[i]) continue
-
-					const {
-						data: { publicUrl },
-					} = supabase.storage.from('recordings').getPublicUrl(chunk.path)
-
-					const blob = await (await fetch(publicUrl)).blob()
+		const timeout = setTimeout(() => {
+			toast.promise(
+				(async () => {
 					if (ac.signal.aborted) return
+					const audioFiles = [...files]
 
-					const objectURL = URL.createObjectURL(blob)
+					for (let i = 0; i < project.chunks.length; i++) {
+						const chunk = project.chunks[i] as { path: string; duration: number }
+						if (!chunk) continue
+						if (audioFiles[i]) continue
 
-					const audio = new Audio(objectURL)
+						const {
+							data: { publicUrl },
+						} = supabase.storage.from('recordings').getPublicUrl(chunk.path)
 
-					await new Promise<void>((resolve) => {
-						audio.addEventListener('canplaythrough', () => resolve(), false)
+						const blob = await (await fetch(publicUrl)).blob()
+						if (ac.signal.aborted) return
+
+						const objectURL = URL.createObjectURL(blob)
+
+						const audio = new Audio(objectURL)
+
+						await new Promise<void>((resolve) => {
+							audio.addEventListener('canplaythrough', () => resolve(), false)
+						})
+
+						audioFiles[i] = { audio, objectURL, playing: false }
+					}
+
+					const toRemove: number[] = []
+					audioFiles.forEach((_x, i) => {
+						if (!project.chunks[i]) {
+							toRemove.push(i)
+						}
 					})
-
-					audioFiles[i] = { audio, objectURL, playing: false }
-				}
-
-				const toRemove: number[] = []
-				audioFiles.forEach((_x, i) => {
-					if (!project.chunks[i]) {
-						toRemove.push(i)
-					}
-				})
-				toRemove.forEach((x) => {
-					const f = audioFiles[x]
-					if (f) {
-						URL.revokeObjectURL(f.objectURL)
-					}
-					audioFiles[x] = undefined
-				})
-				setFiles(audioFiles)
-				filesRef.current = audioFiles
-			})(),
-			{
-				success: {
-					title: '오디오 파일 다운로드가 완료 되었습니다.',
+					toRemove.forEach((x) => {
+						const f = audioFiles[x]
+						if (f) {
+							URL.revokeObjectURL(f.objectURL)
+						}
+						audioFiles[x] = undefined
+					})
+					setFiles(audioFiles)
+					filesRef.current = audioFiles
+				})(),
+				{
+					success: {
+						title: '오디오 파일 다운로드가 완료 되었습니다.',
+					},
+					error: {
+						title: '오디오 파일 다운로드 중 문제가 발생했습니다',
+					},
+					loading: {
+						title: '오디오 파일을 다운로드 중입니다...',
+					},
 				},
-				error: {
-					title: '오디오 파일 다운로드 중 문제가 발생했습니다',
-				},
-				loading: {
-					title: '오디오 파일을 다운로드 중입니다...',
-				},
-			},
-		)
+			)
+		}, 100)
 
 		return () => {
+			clearTimeout(timeout)
 			ac.abort()
 		}
 	}, [project.chunks])
