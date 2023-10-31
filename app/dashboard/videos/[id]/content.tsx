@@ -93,7 +93,7 @@ export const VideoPageContent: React.FC<{ video: Video; recordings: Recording[] 
 							ref={playerRef}
 							onReady={() => {
 								setVideoLoading(false)
-								console.log(playerRef.current?.internalPlayer)
+								console.log(playerRef.current)
 							}}
 							videoId={video.id}
 							loading="lazy"
