@@ -61,8 +61,8 @@ export const ProjectDeletePopup: React.FC<{ project: RecordingWithVideo }> = ({ 
 								setDeleting(true)
 								toast.promise(
 									deleteProject(supabase, project)
-										.then(async () => {
-											router.push('/dashboard')
+										.then(() => {
+											router.replace('/dashboard')
 										})
 										.finally(() => setDeleting(false)),
 									{
