@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-import {TbStar, TbMicrophone, TbPlus, TbShare, TbDeviceFloppy, TbAlarmFilled} from 'react-icons/tb'
+import { TbStar, TbMicrophone, TbPlus, TbShare, TbDeviceFloppy, TbAlarmFilled } from 'react-icons/tb'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Box, Text, Card, Button, Heading, Grid, GridItem } from '@chakra-ui/react'
 
@@ -29,7 +29,7 @@ export default async function Index() {
 				</Text>
 				<Text fontWeight={'bold'} fontSize={'6xl'} px={8}>
 					<Text fontWeight={'black'} as="span" color="blue.500">
-						'우리'
+						'당신의 목소리'
 					</Text>
 					가 세상을 바꿀 수 있습니다.
 				</Text>

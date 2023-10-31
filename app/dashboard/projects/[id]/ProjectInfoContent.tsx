@@ -208,7 +208,7 @@ export const ProjectInfoContent: React.FC<{ project: RecordingWithVideo }> = ({ 
 							audio.addEventListener('canplaythrough', () => resolve(), false)
 						})
 
-						audioFiles[i] = { audio, objectURL, playing: false }
+						audioFiles[i] = { played: false, audio, objectURL, playing: false }
 					}
 
 					const toRemove: number[] = []
