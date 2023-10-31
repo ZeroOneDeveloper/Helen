@@ -37,19 +37,15 @@ import {
 	Tooltip,
 	useDisclosure,
 	useToast,
-	Spinner,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import {
 	TbCheck,
-	TbCircleFilled,
 	TbLock,
 	TbMicrophone,
 	TbPlayerPause,
 	TbPlayerPlay,
-	TbPlayerRecordFilled,
-	TbPlayerStop,
 	TbTrash,
 	TbWorld
 } from 'react-icons/tb'
@@ -450,6 +446,11 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 						<Heading mt={2} size="xs">
 							{project.video.title}
 						</Heading>
+						{
+							project.video.caption && <Text align='right' fontWeight='bold' fontSize='xl'>
+								예상 더빙 시간 : {Math.round(project.video.caption.length * 11 / 60)} 분
+							</Text>
+						}
 						<HStack justify="flex-end" mt={4}>
 							<Popover
 								onOpen={() => {
@@ -498,7 +499,7 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 												setUpdating(true)
 												try {
 													await supabase.from('recordings').update({ visibility }).eq('id', project.id)
-													await router.refresh()
+													router.refresh()
 													visibilityPopup.onClose()
 													toast({ status: 'success', title: '공개 범위가 설정 되었습니다.' })
 												} catch (e) {

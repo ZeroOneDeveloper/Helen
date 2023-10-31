@@ -20,7 +20,6 @@ import { TbPlayerRecordFilled, TbPlayerStop } from 'react-icons/tb'
 import Crunker from 'crunker'
 import { v4 } from 'uuid'
 import { handleResponse } from '@utils/supabaseCommon'
-import dynamic from 'next/dynamic'
 import { AudioEditor } from '@/components/audio/AudioEditor';
 
 const RecordPopup: React.FC<{

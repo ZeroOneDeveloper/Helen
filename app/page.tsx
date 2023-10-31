@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 
 import { TbStar, TbMicrophone, TbPlus, TbShare, TbDeviceFloppy, TbAlarmFilled } from 'react-icons/tb'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Box, Text, Card, Button, Heading, Grid, GridItem } from '@chakra-ui/react'
+import { Box, Text, Button, Heading, Grid, GridItem } from '@chakra-ui/react'
 
 import { HomeHeader } from '@components/home/HomeHeader'
 import { HomeFeatureCard } from '@components/home/HomeFeatureCard'
