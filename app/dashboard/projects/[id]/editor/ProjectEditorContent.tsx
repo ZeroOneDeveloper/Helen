@@ -41,7 +41,18 @@ import {
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import { TbLock, TbMicrophone, TbPlayerPause, TbPlayerPlay, TbPlayerRecordFilled, TbPlayerStop, TbTrash, TbWorld } from 'react-icons/tb'
+import {
+	TbCheck,
+	TbCircleFilled,
+	TbLock,
+	TbMicrophone,
+	TbPlayerPause,
+	TbPlayerPlay,
+	TbPlayerRecordFilled,
+	TbPlayerStop,
+	TbTrash,
+	TbWorld
+} from 'react-icons/tb'
 import YouTube, { YouTubePlayer } from 'react-youtube'
 import { ProjectDeletePopup } from '@components/ProjectDeletePopup'
 
@@ -167,7 +178,7 @@ const Caption: React.FC<{
 														chunks[index] = null
 														handleResponse(await supabase.storage.from('recordings').remove([path]))
 														await supabase.from('recordings').update({ chunks }).eq('id', project.id)
-														await router.refresh()
+														router.refresh()
 														deleteDialog.onClose()
 													})().finally(() => setLoading(false)),
 													{
@@ -503,6 +514,13 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 								</PopoverContent>
 							</Popover>
 							<ProjectDeletePopup project={project} />
+							<Box>
+								<Tooltip label="저장">
+									<IconButton colorScheme="blue" aria-label="저장" icon={<TbCheck />} onClick={() => {
+										router.push(`/dashboard/projects/${project.id}`)
+									}} />
+								</Tooltip>
+							</Box>
 						</HStack>
 					</Box>
 				</Box>
