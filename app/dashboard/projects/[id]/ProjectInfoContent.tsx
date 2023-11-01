@@ -311,7 +311,7 @@ export const ProjectInfoContent: React.FC<{ project: RecordingWithVideo }> = ({ 
 							<YouTube
 								onReady={(e) => {
 									setPlayer(e.target)
-									e.target.setVolume(20)
+									e.target.setVolume(10)
 								}}
 								videoId={project.video.id}
 							/>

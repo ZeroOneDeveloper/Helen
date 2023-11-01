@@ -1,16 +1,21 @@
-'use client';
+'use client'
 
 import React from 'react'
 import {
-	Box, Button,
-	Card, HStack, IconButton,
+	Box,
+	Button,
+	Card,
+	HStack,
+	IconButton,
 	ModalBody,
 	ModalCloseButton,
-	ModalContent, ModalFooter,
-	ModalHeader, Spacer,
+	ModalContent,
+	ModalFooter,
+	ModalHeader,
+	Spacer,
 	Text,
 	UseDisclosureReturn,
-	useToast
+	useToast,
 } from '@chakra-ui/react'
 import { Caption, RecordingWithVideo } from '@/types/data'
 import { useRouter } from 'next/navigation'
@@ -20,7 +25,7 @@ import { TbPlayerRecordFilled, TbPlayerStop } from 'react-icons/tb'
 import Crunker from 'crunker'
 import { v4 } from 'uuid'
 import { handleResponse } from '@utils/supabaseCommon'
-import { AudioEditor } from '@/components/audio/AudioEditor';
+import { AudioEditor } from '@/components/audio/AudioEditor'
 
 const RecordPopup: React.FC<{
 	disclosure: UseDisclosureReturn

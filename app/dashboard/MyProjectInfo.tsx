@@ -19,15 +19,21 @@ const MyProjectInfo: React.FC<{ projects: Video[] }> = ({ projects }) => {
 			<Text mb={4} fontWeight={'bold'} fontSize={'2xl'}>
 				Your Project
 			</Text>
-			{projects.length !== 0 ? <VirtuosoGrid
-				useWindowScroll
-				components={{
-					List: ListContainer,
-				}}
-				overscan={200}
-				totalCount={projects.length}
-				itemContent={(i) => <VideoListCard video={projects[i]} />}
-			/> : <Button colorScheme={'blue'} as={Link} href='/dashboard/videos'>Create Your First Project</Button>}
+			{projects.length !== 0 ? (
+				<VirtuosoGrid
+					useWindowScroll
+					components={{
+						List: ListContainer,
+					}}
+					overscan={200}
+					totalCount={projects.length}
+					itemContent={(i) => <VideoListCard video={projects[i]} />}
+				/>
+			) : (
+				<Button colorScheme={'blue'} as={Link} href="/dashboard/videos">
+					Create Your First Project
+				</Button>
+			)}
 		</Container>
 	)
 }

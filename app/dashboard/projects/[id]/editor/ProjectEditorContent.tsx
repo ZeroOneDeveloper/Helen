@@ -40,19 +40,11 @@ import {
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import {
-	TbCheck,
-	TbLock,
-	TbMicrophone,
-	TbPlayerPause,
-	TbPlayerPlay,
-	TbTrash,
-	TbWorld
-} from 'react-icons/tb'
+import { TbCheck, TbLock, TbMicrophone, TbPlayerPause, TbPlayerPlay, TbTrash, TbWorld } from 'react-icons/tb'
 import YouTube, { YouTubePlayer } from 'react-youtube'
 import { ProjectDeletePopup } from '@components/ProjectDeletePopup'
 
-const RecordPopup = dynamic(() => import('./RecordingPopup'), {ssr: false})
+const RecordPopup = dynamic(() => import('./RecordingPopup'), { ssr: false })
 
 const Caption: React.FC<{
 	caption: Caption
@@ -126,7 +118,7 @@ const Caption: React.FC<{
 				</Tooltip>
 				<Spacer />
 				<Tooltip label="녹음하기">
-					<IconButton onClick={onRecord} icon={<TbMicrophone />} aria-label="녹음하기 " />
+					<IconButton onClick={onRecord} icon={<TbMicrophone />} aria-label="녹음하기" />
 				</Tooltip>
 				{recording && (
 					<>
@@ -201,7 +193,6 @@ const Caption: React.FC<{
 export type AudioFileStore = ({ objectURL: string; audio: HTMLAudioElement; playing: boolean; played: boolean } | undefined)[]
 
 export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = ({ project }) => {
-
 	const [visibility, setVisibility] = React.useState(project.visibility)
 	const [updating, setUpdating] = React.useState(false)
 	const [player, setPlayer] = React.useState<YouTubePlayer>(null)
@@ -446,11 +437,11 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 						<Heading mt={2} size="xs">
 							{project.video.title}
 						</Heading>
-						{
-							project.video.caption && <Text align='right' fontWeight='bold' fontSize='xl'>
-								예상 더빙 시간 : {Math.round(project.video.caption.length * 11 / 60)} 분
+						{project.video.caption && (
+							<Text align="right" fontWeight="bold" fontSize="xl">
+								예상 더빙 시간 : {Math.round((project.video.caption.length * 11) / 60)} 분
 							</Text>
-						}
+						)}
 						<HStack justify="flex-end" mt={4}>
 							<Popover
 								onOpen={() => {
@@ -517,9 +508,14 @@ export const ProjectEditorContent: React.FC<{ project: RecordingWithVideo }> = (
 							<ProjectDeletePopup project={project} />
 							<Box>
 								<Tooltip label="저장">
-									<IconButton colorScheme="blue" aria-label="저장" icon={<TbCheck />} onClick={() => {
-										router.replace(`/dashboard/projects/${project.id}`)
-									}} />
+									<IconButton
+										colorScheme="blue"
+										aria-label="저장"
+										icon={<TbCheck />}
+										onClick={() => {
+											router.replace(`/dashboard/projects/${project.id}`)
+										}}
+									/>
 								</Tooltip>
 							</Box>
 						</HStack>

@@ -13,14 +13,14 @@ const Dashboard = async () => {
 	} = await supabase.auth.getUser()
 	const data = (await supabase.from('recordings').select('*').eq('author', user!.id)).data
 	if (!data) return <MyProjectInfo projects={[]} />
-	const res : Video[] = []
+	const res: Video[] = []
 	for (const i of data) {
 		const title = (await supabase.from('videos').select('*').eq('id', i.video).single()).data!.title
 		res.push({
 			caption: null,
 			created_at: i.created_at,
 			id: i.video,
-			title: title
+			title: title,
 		})
 	}
 	return <MyProjectInfo projects={res as unknown as Video[]} />
