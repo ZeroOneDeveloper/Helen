@@ -102,6 +102,7 @@ export const ProjectInfoContent: React.FC<{ project: RecordingWithVideo }> = ({ 
 	const [files, setFiles] = React.useState<AudioFileStore>([])
 	const filesRef = React.useRef<AudioFileStore>(files)
 	const playingRef = React.useRef<boolean>(false)
+	const captionsRef = React.useRef<HTMLDivElement>(null);
 	const toast = useToast({ position: 'top-right' })
 
 	const supabase = supabaseClient()
@@ -176,6 +177,7 @@ export const ProjectInfoContent: React.FC<{ project: RecordingWithVideo }> = ({ 
 		const index = captions.findLastIndex((x: any) => x.start <= adjustedTime) ?? -1
 		if (activeIndex !== index) {
 			setActiveIndex(index)
+			captionsRef.current?.children[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 		}
 	}, [activeIndex, time])
 
@@ -268,7 +270,7 @@ export const ProjectInfoContent: React.FC<{ project: RecordingWithVideo }> = ({ 
 			</Flex>
 
 			<Flex mt={4} direction={{ base: 'column-reverse', lg: 'row' }} gap={4}>
-				<Box flexGrow={1}>
+				<Box flexGrow={1} ref={captionsRef}>
 					{!project.video.caption?.length && (
 						<Alert status="error" p={4} alignItems="flex-start">
 							<AlertIcon />
